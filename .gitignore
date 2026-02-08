@@ -1,7 +1,26 @@
+# Environment
 .env
+
+# Python
 __pycache__/
 *.pyc
+*.pyo
+
+# Jupyter
 .ipynb_checkpoints/
+
+# Generated outputs (reproducible from notebook)
 outputs/
 models/
-data/   
+
+# Data (private, large files)
+data/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
