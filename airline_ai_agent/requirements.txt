@@ -1,0 +1,17 @@
+python-dotenv
+pandas
+numpy
+matplotlib
+seaborn
+scikit-learn
+tqdm
+joblib
+langchain-core
+langchain-openai
+langchain-ollama
+langgraph
+faiss-cpu
+fastapi
+uvicorn
+slowapi
+pydantic
