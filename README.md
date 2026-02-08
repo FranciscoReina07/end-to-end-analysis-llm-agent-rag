@@ -136,12 +136,3 @@ Una vez que la celda del servidor este corriendo:
 | Notebook como entregable principal | Demuestra el pipeline analitico completo. Despliegue en produccion extraeria a modulos `.py`. |
 
 ---
-
-## ⚠️ Supuestos y Limitaciones
-
-- `Threads.json` y `Messages.json` representan interacciones reales de soporte al cliente de una aerolinea.
-- `escalate_conversation` es binario y confiable como variable objetivo de clasificacion.
-- El modelo ML (Regresion Logistica) es un baseline. En produccion se evaluarian alternativas (XGBoost, Random Forest).
-- La memoria FAISS es local. En produccion se migraria a una base vectorial distribuida.
-- El agente depende de la calidad del LLM para generar JSON estructurado. Respuestas malformadas se manejan de forma segura.
-- Los embeddings se generan localmente en CPU, lo cual limita la velocidad de vectorizacion masiva.
