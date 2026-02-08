@@ -8,7 +8,7 @@
 
 An **End-to-End AI System** designed to analyze, diagnose, and automate customer support interactions. This project integrates a robust **ETL pipeline**, **Predictive Machine Learning models**, and a **Generative AI Agent (RAG)** exposed via a production-ready **REST API**.
 
-## 🚀 Key Features
+##  Key Features
 
 ### 1. 🧠 Autonomous AI Agent (LangGraph)
 - **Architecture**: State Graph with cyclic logic using `LangGraph`.
