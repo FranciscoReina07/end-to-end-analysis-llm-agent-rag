@@ -1,4 +1,4 @@
-# Customer Support Intelligence Engine ✈️🤖
+# Motor de Inteligencia para Soporte al Cliente ✈️🤖
 
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue?style=for-the-badge&logo=python)
 ![FastAPI](https://img.shields.io/badge/FastAPI-Production_API-009688?style=for-the-badge&logo=fastapi)
@@ -6,64 +6,64 @@
 ![Pandas](https://img.shields.io/badge/Pandas-Data_Analysis-150458?style=for-the-badge&logo=pandas)
 ![Scikit-Learn](https://img.shields.io/badge/Scikit_Learn-Machine_Learning-F7931E?style=for-the-badge&logo=scikit-learn)
 
-An **End-to-End AI System** designed to analyze, diagnose, and automate customer support interactions for an airline. This project integrates a robust **ETL pipeline**, **Predictive Machine Learning models**, and a **Generative AI Agent (RAG)** exposed via a production-ready **REST API**.
+Sistema de **IA End-to-End** disenado para analizar, diagnosticar y automatizar interacciones de soporte al cliente en una aerolinea. Integra un pipeline robusto de **ETL**, modelos **predictivos de Machine Learning** y un **Agente de IA Generativa (RAG)** expuesto a traves de una **API REST** lista para produccion.
 
 ---
 
-## 🎯 Key Features
+## 🎯 Funcionalidades Clave
 
-### 1. 🧠 Autonomous AI Agent (LangGraph)
-- **Architecture**: State Graph with cyclic logic and conditional routing using `LangGraph`.
-- **Router**: Automated Conversation Analyst that classifies sentiment and intent, then routes to specialized nodes (escalation, technical draft, summary, or general assistant).
-- **Tools**: 7 dynamic tools for retrieving metrics, top threads, escalation rates, and conversation history.
-- **Memory**: Session-based `MemorySaver` for multi-turn conversations without cross-contamination.
+### 1. 🧠 Agente Autonomo de IA (LangGraph)
+- **Arquitectura**: State Graph con logica ciclica y enrutamiento condicional usando `LangGraph`.
+- **Router**: Analista de Conversaciones Automatizado que clasifica sentimiento e intencion, luego enruta a nodos especializados (escalamiento, borrador tecnico, resumen o asistente general).
+- **Tools**: 7 herramientas dinamicas para consultar metricas, hilos principales, tasas de escalamiento e historial de conversaciones.
+- **Memoria**: `MemorySaver` basado en sesion para conversaciones multi-turno sin contaminacion cruzada.
 
-### 2. 📚 Semantic Memory (RAG)
-- **Vector Database**: **FAISS** for local, cost-free vector storage and retrieval.
-- **Embeddings**: `nomic-embed-text` via **Ollama** (local, free) for high-performance semantic search.
-- **Function**: Retrieves historical Q&A context to augment the agent's responses (Retrieval-Augmented Generation).
+### 2. 📚 Memoria Semantica (RAG)
+- **Base Vectorial**: **FAISS** para almacenamiento y busqueda vectorial local, sin costo.
+- **Embeddings**: `nomic-embed-text` via **Ollama** (local, gratuito) para busqueda semantica de alto rendimiento.
+- **Funcion**: Recupera contexto historico de preguntas y respuestas para enriquecer las respuestas del agente (Retrieval-Augmented Generation).
 
-### 3. 🔮 Predictive Analytics (ML)
-- **Escalation Prediction**: Logistic Regression with `class_weight='balanced'` to predict ticket escalation.
-- **Evaluation**: Classification report, confusion matrix, ROC-AUC, PR-AUC, and cost-sensitive analysis (false negatives weighted 5x).
-- **Persistence**: Model versioning with `joblib` and embedding cache with `Parquet`.
+### 3. 🔮 Analitica Predictiva (ML)
+- **Prediccion de Escalamiento**: Regresion Logistica con `class_weight='balanced'` para predecir si un ticket sera escalado.
+- **Evaluacion**: Reporte de clasificacion, matriz de confusion, ROC-AUC, PR-AUC y analisis sensible al costo (falsos negativos ponderados 5x).
+- **Persistencia**: Versionado de modelos con `joblib` y cache de embeddings en `Parquet`.
 
-### 4. ⚙️ Data Engineering (ETL)
-- **Processing**: Automated cleaning, normalization, and master table creation from raw JSON data using `Pandas`.
-- **Text Pipeline**: Content normalization, text chunking, and SHA-256 hash-based embedding cache to avoid redundant vectorization.
-- **Persistence**: Optimized I/O with **Parquet** format.
+### 4. ⚙️ Ingenieria de Datos (ETL)
+- **Procesamiento**: Limpieza automatizada, normalizacion y creacion de tabla maestra desde datos crudos en JSON usando `Pandas`.
+- **Pipeline de Texto**: Normalizacion de contenido, fragmentacion de texto y cache de embeddings basado en hash SHA-256 para evitar vectorizacion redundante.
+- **Persistencia**: I/O optimizado con formato **Parquet**.
 
-### 5. 🌐 Production API (FastAPI)
+### 5. 🌐 API de Produccion (FastAPI)
 - **Endpoints**: `POST /agent/ask`, `GET /metrics`, `GET /health`.
-- **Security**: API Key validation via `X-API-Key` header.
-- **Rate Limiting**: `slowapi` integration (10 req/min per client).
-- **Health Check**: Deep diagnostics (LLM reachability, graph status, memory status, active sessions).
+- **Seguridad**: Validacion de API Key via header `X-API-Key`.
+- **Rate Limiting**: Integracion con `slowapi` (10 req/min por cliente).
+- **Health Check**: Diagnostico profundo (alcanzabilidad del LLM, estado del grafo, estado de la memoria, sesiones activas).
 
 ---
 
-## 🛠️ Tech Stack
+## 🛠️ Stack Tecnologico
 
-| Category | Technologies |
+| Categoria | Tecnologias |
 |---|---|
 | **Core** | Python 3.10+ |
 | **API** | FastAPI, Uvicorn, Pydantic |
-| **GenAI** | LangChain, LangGraph, OpenAI (gpt-4o-mini), Ollama |
-| **Data & ML** | Pandas, Scikit-learn, NumPy, Matplotlib, Seaborn |
-| **Vector Store** | FAISS (CPU) |
+| **IA Generativa** | LangChain, LangGraph, OpenAI (gpt-4o-mini), Ollama |
+| **Datos y ML** | Pandas, Scikit-learn, NumPy, Matplotlib, Seaborn |
+| **Base Vectorial** | FAISS (CPU) |
 | **Embeddings** | Ollama (nomic-embed-text) |
 
 ---
 
-## 📂 Project Structure
+## 📂 Estructura del Proyecto
 
 ```
-├── data/                  # Raw dataset (GitIgnored for privacy/size)
+├── data/                  # Dataset crudo (GitIgnored por privacidad/tamano)
 ├── memory/
-│   └── faiss_memory.py    # FAISS semantic memory module
-├── models/                # Serialized ML models (GitIgnored)
-├── outputs/               # Embeddings cache, FAISS index, metrics (GitIgnored)
-├── Aerolinea.ipynb        # Main Notebook (ETL + ML + Agent + API)
-├── .env                   # Environment variables (GitIgnored)
+│   └── faiss_memory.py    # Modulo de memoria semantica FAISS
+├── models/                # Modelos ML serializados (GitIgnored)
+├── outputs/               # Cache de embeddings, indice FAISS, metricas (GitIgnored)
+├── Aerolinea.ipynb        # Notebook Principal (ETL + ML + Agente + API)
+├── .env                   # Variables de entorno (GitIgnored)
 ├── .gitignore
 ├── requirements.txt
 └── README.md
@@ -71,77 +71,77 @@ An **End-to-End AI System** designed to analyze, diagnose, and automate customer
 
 ---
 
-## 🚀 How to Run
+## 🚀 Como Ejecutar
 
-### Prerequisites
+### Prerrequisitos
 
 - Python 3.10+
-- [Ollama](https://ollama.com/) installed and running
-- OpenAI API Key (only for agent conversations, minimal cost)
+- [Ollama](https://ollama.com/) instalado y corriendo
+- API Key de OpenAI (solo para conversaciones del agente, costo minimo)
 
-### 1. Clone and install
+### 1. Clonar e instalar
 
 ```bash
-git clone https://github.com/<your-username>/end-to-end-analysis-llm-agent-rag.git
+git clone https://github.com/<tu-usuario>/end-to-end-analysis-llm-agent-rag.git
 cd end-to-end-analysis-llm-agent-rag
 pip install -r requirements.txt
 ```
 
-### 2. Pull the embedding model
+### 2. Descargar el modelo de embeddings
 
 ```bash
 ollama pull nomic-embed-text
 ```
 
-### 3. Configure environment
+### 3. Configurar el entorno
 
-Create a `.env` file in the project root:
+Crear un archivo `.env` en la raiz del proyecto:
 
 ```
-OPENAI_API_KEY=sk-your-key-here
-AERYA_API_KEY=your-api-key-for-endpoints
+OPENAI_API_KEY=sk-tu-clave-aqui
+AERYA_API_KEY=tu-api-key-para-endpoints
 ```
 
-### 4. Add your data
+### 4. Agregar los datos
 
-Place `Threads.json` and `Messages.json` inside a `data/` folder at the project root.
+Colocar `Threads.json` y `Messages.json` dentro de la carpeta `data/` en la raiz del proyecto.
 
-### 5. Run the notebook
+### 5. Ejecutar el notebook
 
-Open `Aerolinea.ipynb` and execute all cells sequentially. The notebook will:
-1. Load and profile the raw data (EDA)
-2. Build the master table
-3. Generate embeddings and train the ML model
-4. Initialize the LangGraph agent
-5. Run evaluation and start the FastAPI server
+Abrir `Aerolinea.ipynb` y ejecutar todas las celdas en orden. El notebook realizara:
+1. Carga y perfilamiento de datos crudos (EDA)
+2. Construccion de la tabla maestra
+3. Generacion de embeddings y entrenamiento del modelo ML
+4. Inicializacion del agente LangGraph
+5. Evaluacion y arranque del servidor FastAPI
 
-### 6. Access the API
+### 6. Acceder a la API
 
-Once the server cell is running:
-- **Interactive docs**: `http://localhost:8000/docs`
+Una vez que la celda del servidor este corriendo:
+- **Documentacion interactiva**: `http://localhost:8000/docs`
 - **Health check**: `GET http://localhost:8000/health`
-- **Metrics**: `GET http://localhost:8000/metrics` (requires `X-API-Key` header)
-- **Ask the agent**: `POST http://localhost:8000/agent/ask` (requires `X-API-Key` header)
+- **Metricas**: `GET http://localhost:8000/metrics` (requiere header `X-API-Key`)
+- **Consultar al agente**: `POST http://localhost:8000/agent/ask` (requiere header `X-API-Key`)
 
 ---
 
-## 📊 Key Decisions
+## 📊 Decisiones Clave
 
-| Decision | Rationale |
+| Decision | Justificacion |
 |---|---|
-| OpenAI gpt-4o-mini for agent | Speed and quality for structured JSON responses during live demo. Minimal cost. |
-| Ollama for embeddings | Local execution, free, no API dependency for batch vectorization. |
-| FAISS as semantic memory | Local, free, CPU-friendly. Production alternative: managed vector DB. |
-| Closure pattern for tools | Eliminates global state. Each tool captures the DataFrame via closure. |
-| Notebook as main deliverable | Demonstrates the full analytical pipeline. Production deployment would extract to `.py` modules. |
+| OpenAI gpt-4o-mini para el agente | Velocidad y calidad para respuestas JSON estructuradas en demo en vivo. Costo minimo. |
+| Ollama para embeddings | Ejecucion local, gratuito, sin dependencia de API para vectorizacion masiva. |
+| FAISS como memoria semantica | Local, gratuito, amigable con CPU. Alternativa en produccion: base vectorial gestionada. |
+| Patron closure para tools | Elimina estado global. Cada tool captura el DataFrame via closure. |
+| Notebook como entregable principal | Demuestra el pipeline analitico completo. Despliegue en produccion extraeria a modulos `.py`. |
 
 ---
 
-## ⚠️ Assumptions & Limitations
+## ⚠️ Supuestos y Limitaciones
 
-- `Threads.json` and `Messages.json` represent real airline customer interactions.
-- `escalate_conversation` is binary and reliable as a classification target.
-- The ML model (Logistic Regression) is a baseline. Production would benchmark alternatives (XGBoost, Random Forest).
-- FAISS memory is local. Production would migrate to a distributed vector store.
-- The agent depends on LLM quality for structured JSON output. Malformed responses are gracefully handled.
-- Embeddings are generated locally on CPU, which limits batch vectorization speed.
+- `Threads.json` y `Messages.json` representan interacciones reales de soporte al cliente de una aerolinea.
+- `escalate_conversation` es binario y confiable como variable objetivo de clasificacion.
+- El modelo ML (Regresion Logistica) es un baseline. En produccion se evaluarian alternativas (XGBoost, Random Forest).
+- La memoria FAISS es local. En produccion se migraria a una base vectorial distribuida.
+- El agente depende de la calidad del LLM para generar JSON estructurado. Respuestas malformadas se manejan de forma segura.
+- Los embeddings se generan localmente en CPU, lo cual limita la velocidad de vectorizacion masiva.
