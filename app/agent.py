@@ -34,7 +34,7 @@ from app.config import (
     logger,
 )
 from app.data import construir_resumen_contexto, get_conversation_text
-from memory.faiss_memory import FaissMemory
+from memory import FaissMemory
 
 # ---------------------------------------------------------------------------
 # JSON extraction (robusto contra LLM "charlatan")
