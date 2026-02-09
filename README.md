@@ -151,12 +151,3 @@ Una vez que el servidor este corriendo:
 | Session manager aislado | Un `MemorySaver` por session_id. Sin contaminacion cruzada entre usuarios. |
 
 ---
-
-## ⚠️ Supuestos y Limitaciones
-
-- `Threads.json` y `Messages.json` representan interacciones reales de soporte al cliente de una aerolinea.
-- `escalate_conversation` es binario y confiable como variable objetivo de clasificacion.
-- El modelo ML (Regresion Logistica) es un baseline. En produccion se evaluarian alternativas (XGBoost, Random Forest).
-- La memoria FAISS es local. En produccion se migraria a una base vectorial distribuida (Pinecone, Weaviate).
-- El timeout en Windows no usa SIGALRM (limitacion del OS). En Linux/Docker funciona completamente.
-- Los embeddings se generan localmente en CPU, lo cual limita la velocidad de vectorizacion masiva.
