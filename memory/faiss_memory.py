@@ -1,5 +1,14 @@
+"""
+Memoria semantica local basada en FAISS.
+
+Thread-safe: usa threading.Lock para proteger escrituras concurrentes.
+Produccion: migrar a Redis Vector Store, Qdrant o Weaviate para
+            persistencia distribuida y escritura concurrente nativa.
+"""
+
 import json
 import logging
+import threading
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional
@@ -25,7 +34,10 @@ class MemoryItem:
 class FaissMemory:
     """
     Memoria semantica local basada en FAISS.
-    Guarda y recupera textos por similitud.
+
+    Thread-safe: todas las operaciones de escritura (save, _persist)
+    estan protegidas por un Lock. Las lecturas (search) son seguras
+    en FAISS por naturaleza.
     """
 
     def __init__(
@@ -44,6 +56,7 @@ class FaissMemory:
 
         self._items: List[MemoryItem] = []
         self._index = None
+        self._lock = threading.Lock()
 
         if not self.enabled:
             logger.warning("FAISS no esta disponible. Memoria deshabilitada.")
@@ -54,7 +67,7 @@ class FaissMemory:
         self._items = self._load_metadata()
 
     def save(self, text: str, metadata: Optional[Dict[str, Any]] = None) -> None:
-        """Guarda un texto en la memoria semantica."""
+        """Guarda un texto en la memoria semantica (thread-safe)."""
         if not self.enabled or not text:
             return
 
@@ -63,9 +76,10 @@ class FaissMemory:
         if vector is None:
             return
 
-        self._index.add(vector)  # type: ignore[union-attr]
-        self._items.append(MemoryItem(text=text, metadata=meta))
-        self._persist()
+        with self._lock:
+            self._index.add(vector)  # type: ignore[union-attr]
+            self._items.append(MemoryItem(text=text, metadata=meta))
+            self._persist()
 
     def search(self, query: str, k: int = 4) -> List[Dict[str, Any]]:
         """Busca textos similares al query y devuelve resultados ordenados."""
@@ -131,11 +145,14 @@ class FaissMemory:
             return []
 
     def _persist(self) -> None:
+        """Persiste el indice y metadata a disco. Debe llamarse dentro del Lock."""
         try:
             self.index_path.parent.mkdir(parents=True, exist_ok=True)
             self.metadata_path.parent.mkdir(parents=True, exist_ok=True)
             faiss.write_index(self._index, str(self.index_path))  # type: ignore[arg-type]
             payload = [item.__dict__ for item in self._items]
-            self.metadata_path.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+            self.metadata_path.write_text(
+                json.dumps(payload, ensure_ascii=False), encoding="utf-8"
+            )
         except Exception as exc:
             logger.error("Fallo al persistir FAISS: %s", exc)

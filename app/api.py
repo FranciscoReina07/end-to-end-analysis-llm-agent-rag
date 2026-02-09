@@ -14,7 +14,9 @@ Seguridad:
 - Validacion de entrada con Pydantic V2.
 """
 
+import hashlib
 import json
+import secrets
 import signal
 import uuid
 from contextlib import contextmanager
@@ -97,12 +99,31 @@ def timeout(seconds: int):
 
 
 # ---------------------------------------------------------------------------
-# API Key validation
+# API Key validation (timing-safe)
 # ---------------------------------------------------------------------------
 
 
+def _hash_key(key: str) -> str:
+    """Hash SHA-256 de la key para comparacion segura."""
+    return hashlib.sha256(key.encode("utf-8")).hexdigest()
+
+
+# Pre-computar hash de la key del servidor al importar (no en cada request)
+_EXPECTED_KEY_HASH: str = _hash_key(AERYA_API_KEY)
+
+
 def validate_api_key(x_api_key: str) -> None:
-    if x_api_key != AERYA_API_KEY:
+    """
+    Validacion de API Key resistente a timing attacks.
+
+    Usa secrets.compare_digest para comparacion en tiempo constante.
+    La key se hashea antes de comparar para no exponer longitud.
+
+    Produccion: integrar con un servicio de API Gateway (AWS API Gateway,
+    Kong, etc.) que gestione rotacion, expiracion y scopes.
+    """
+    incoming_hash = _hash_key(x_api_key)
+    if not secrets.compare_digest(incoming_hash, _EXPECTED_KEY_HASH):
         raise HTTPException(status_code=401, detail="API key invalida o ausente.")
 
 

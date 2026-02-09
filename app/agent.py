@@ -12,6 +12,7 @@ Responsabilidades:
 
 import json
 import re
+import threading
 from pathlib import Path
 from typing import Annotated, Any, Dict, List, Optional, TypedDict
 
@@ -436,18 +437,30 @@ def construir_grafo(
 
 
 class SessionManager:
-    """Gestiona sesiones aisladas del agente. Thread-safe por diseno."""
+    """
+    Gestiona sesiones aisladas del agente.
+
+    Thread-safe: un Lock protege la creacion de sesiones nuevas.
+    Cada session_id tiene su propio MemorySaver (sin contaminacion cruzada).
+
+    Produccion: reemplazar MemorySaver() por RedisSaver(redis_url)
+    para persistencia entre reinicios del servidor.
+    Instalar: pip install langgraph-checkpoint-redis
+    Uso: RedisSaver(conn=redis.from_url("redis://localhost:6379"))
+    """
 
     def __init__(self, graph_template: StateGraph) -> None:
         self._graph = graph_template
         self._sessions: Dict[str, Any] = {}
+        self._lock = threading.Lock()
 
     def get(self, session_id: str):
-        if session_id not in self._sessions:
-            self._sessions[session_id] = self._graph.compile(
-                checkpointer=MemorySaver()
-            )
-        return self._sessions[session_id]
+        with self._lock:
+            if session_id not in self._sessions:
+                self._sessions[session_id] = self._graph.compile(
+                    checkpointer=MemorySaver()
+                )
+            return self._sessions[session_id]
 
     @property
     def active_count(self) -> int:
