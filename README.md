@@ -57,12 +57,21 @@ Sistema de **IA End-to-End** disenado para analizar, diagnosticar y automatizar 
 ## 📂 Estructura del Proyecto
 
 ```
-├── data/                  # Dataset crudo (GitIgnored por privacidad/tamano)
+├── app/
+│   ├── __init__.py
+│   ├── config.py          # Settings, logging, excepciones personalizadas
+│   ├── data.py            # Carga, EDA, tabla maestra, metricas
+│   ├── embeddings.py      # Cache, vectorizacion, pipeline ML
+│   ├── agent.py           # State, nodos, tools (closure), grafo, sesiones
+│   └── api.py             # FastAPI endpoints, Pydantic, CORS, rate limit
 ├── memory/
+│   ├── __init__.py
 │   └── faiss_memory.py    # Modulo de memoria semantica FAISS
+├── data/                  # Dataset crudo (GitIgnored)
 ├── models/                # Modelos ML serializados (GitIgnored)
-├── outputs/               # Cache de embeddings, indice FAISS, metricas (GitIgnored)
-├── Aerolinea.ipynb        # Notebook Principal (ETL + ML + Agente + API)
+├── outputs/               # Cache de embeddings, indice FAISS (GitIgnored)
+├── main.py                # Entry point: orquesta bootstrap y lanza API
+├── Aerolinea.ipynb        # Notebook (EDA + prototipado + demo)
 ├── .env                   # Variables de entorno (GitIgnored)
 ├── .gitignore
 ├── requirements.txt
@@ -106,18 +115,23 @@ AERYA_API_KEY=tu-api-key-para-endpoints
 
 Colocar `Threads.json` y `Messages.json` dentro de la carpeta `data/` en la raiz del proyecto.
 
-### 5. Ejecutar el notebook
+### 5A. Ejecutar la API (produccion)
 
-Abrir `Aerolinea.ipynb` y ejecutar todas las celdas en orden. El notebook realizara:
-1. Carga y perfilamiento de datos crudos (EDA)
-2. Construccion de la tabla maestra
-3. Generacion de embeddings y entrenamiento del modelo ML
-4. Inicializacion del agente LangGraph
-5. Evaluacion y arranque del servidor FastAPI
+```bash
+# Opcion 1: ejecucion directa
+python main.py
+
+# Opcion 2: uvicorn con hot-reload (desarrollo)
+uvicorn main:api --host 0.0.0.0 --port 8000 --reload
+```
+
+### 5B. Ejecutar el notebook (demo / EDA)
+
+Abrir `Aerolinea.ipynb` y ejecutar todas las celdas en orden para prototipado y analisis interactivo.
 
 ### 6. Acceder a la API
 
-Una vez que la celda del servidor este corriendo:
+Una vez que el servidor este corriendo:
 - **Documentacion interactiva**: `http://localhost:8000/docs`
 - **Health check**: `GET http://localhost:8000/health`
 - **Metricas**: `GET http://localhost:8000/metrics` (requiere header `X-API-Key`)
@@ -133,6 +147,16 @@ Una vez que la celda del servidor este corriendo:
 | Ollama para embeddings | Ejecucion local, gratuito, sin dependencia de API para vectorizacion masiva. |
 | FAISS como memoria semantica | Local, gratuito, amigable con CPU. Alternativa en produccion: base vectorial gestionada. |
 | Patron closure para tools | Elimina estado global. Cada tool captura el DataFrame via closure. |
-| Notebook como entregable principal | Demuestra el pipeline analitico completo. Despliegue en produccion extraeria a modulos `.py`. |
+| Factory pattern para API | `create_api()` recibe todas las dependencias. Facilita testing y desacoplamiento. |
+| Session manager aislado | Un `MemorySaver` por session_id. Sin contaminacion cruzada entre usuarios. |
 
 ---
+
+## ⚠️ Supuestos y Limitaciones
+
+- `Threads.json` y `Messages.json` representan interacciones reales de soporte al cliente de una aerolinea.
+- `escalate_conversation` es binario y confiable como variable objetivo de clasificacion.
+- El modelo ML (Regresion Logistica) es un baseline. En produccion se evaluarian alternativas (XGBoost, Random Forest).
+- La memoria FAISS es local. En produccion se migraria a una base vectorial distribuida (Pinecone, Weaviate).
+- El timeout en Windows no usa SIGALRM (limitacion del OS). En Linux/Docker funciona completamente.
+- Los embeddings se generan localmente en CPU, lo cual limita la velocidad de vectorizacion masiva.
