@@ -1,13 +1,14 @@
 """
-API FastAPI de produccion.
+API REST de produccion (FastAPI).
 
+Versionado: /v1
 Endpoints:
-- GET  /health      -> diagnostico profundo del sistema.
-- GET  /metrics     -> metricas de negocio de la aerolinea.
-- POST /agent/ask   -> consulta al agente LangGraph.
+- GET  /v1/health        -> diagnostico profundo del sistema.
+- GET  /v1/metrics       -> metricas de negocio de la aerolinea.
+- POST /v1/agent/query   -> consulta al agente LangGraph.
 
 Seguridad:
-- API Key via header X-API-Key.
+- API Key via header X-API-Key (SHA-256 + timing-safe).
 - Rate limiting con slowapi (10 req/min).
 - CORS configurado.
 - Timeout explicito en el agente.
@@ -150,8 +151,12 @@ def create_api(
     limiter = Limiter(key_func=get_remote_address)
 
     api = FastAPI(
-        title="Aerya API",
-        description="API para el agente de analisis de conversaciones de la aerolinea.",
+        title="Aerya REST API",
+        description=(
+            "API REST para el agente de analisis de conversaciones de la aerolinea.\n\n"
+            "**Autenticacion**: Header `X-API-Key` requerido en endpoints protegidos.\n\n"
+            "**Rate Limit**: 10 requests/minuto por cliente en `/v1/agent/query`."
+        ),
         version="1.0.0",
     )
 
@@ -166,7 +171,13 @@ def create_api(
 
     # --- Health ---
 
-    @api.get("/health", response_model=HealthResponse)
+    @api.get(
+        "/v1/health",
+        response_model=HealthResponse,
+        tags=["System"],
+        summary="Diagnostico del sistema",
+        responses={200: {"description": "Estado actual de todos los componentes"}},
+    )
     def health_check():
         llm_ok = True
         try:
@@ -184,7 +195,16 @@ def create_api(
 
     # --- Metrics ---
 
-    @api.get("/metrics", response_model=MetricsResponse)
+    @api.get(
+        "/v1/metrics",
+        response_model=MetricsResponse,
+        tags=["Analytics"],
+        summary="Metricas de negocio de la aerolinea",
+        responses={
+            401: {"model": ErrorResponse, "description": "API key invalida"},
+            500: {"model": ErrorResponse, "description": "Error interno"},
+        },
+    )
     def get_metrics(
         x_api_key: str = Header(..., alias="X-API-Key"),
     ):
@@ -193,14 +213,25 @@ def create_api(
             metrics_df = metricas_impacto_fn(df_master)
             return metrics_df.to_dict(orient="records")[0]
         except Exception as exc:
-            logger.error("Error en /metrics: %s", exc)
+            logger.error("Error en /v1/metrics: %s", exc)
             raise HTTPException(status_code=500, detail=str(exc))
 
-    # --- Agent ask ---
+    # --- Agent query ---
 
-    @api.post("/agent/ask", response_model=AskResponse)
+    @api.post(
+        "/v1/agent/query",
+        response_model=AskResponse,
+        tags=["Agent"],
+        summary="Consultar al agente de IA",
+        responses={
+            401: {"model": ErrorResponse, "description": "API key invalida"},
+            429: {"model": ErrorResponse, "description": "Rate limit excedido"},
+            504: {"model": ErrorResponse, "description": "Timeout del agente"},
+            500: {"model": ErrorResponse, "description": "Error interno"},
+        },
+    )
     @limiter.limit("10/minute")
-    def agent_ask(
+    def agent_query(
         request: Request,
         req: AskRequest,
         x_api_key: str = Header(..., alias="X-API-Key"),
@@ -262,13 +293,13 @@ def create_api(
             return AskResponse(answer=answer, session_id=session_id)
 
         except AgentTimeoutError:
-            logger.warning("Timeout en /agent/ask session=%s", session_id)
+            logger.warning("Timeout en /v1/agent/query session=%s", session_id)
             raise HTTPException(
                 status_code=504,
                 detail=f"El agente excedio el timeout de {AGENT_TIMEOUT_S}s.",
             )
         except Exception as exc:
-            logger.error("Error en /agent/ask: %s", exc)
+            logger.error("Error en /v1/agent/query: %s", exc)
             raise HTTPException(status_code=500, detail=str(exc))
 
     return api

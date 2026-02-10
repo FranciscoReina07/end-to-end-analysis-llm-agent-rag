@@ -33,10 +33,12 @@ Sistema de **IA End-to-End** disenado para analizar, diagnosticar y automatizar 
 - **Pipeline de Texto**: Normalizacion de contenido, fragmentacion de texto y cache de embeddings basado en hash SHA-256 para evitar vectorizacion redundante.
 - **Persistencia**: I/O optimizado con formato **Parquet**.
 
-### 5. 🌐 API de Produccion (FastAPI)
-- **Endpoints**: `POST /agent/ask`, `GET /metrics`, `GET /health`.
-- **Seguridad**: Validacion de API Key via header `X-API-Key`.
+### 5. 🌐 API REST de Produccion (FastAPI)
+- **Versionado**: Todos los endpoints bajo `/v1` para compatibilidad futura.
+- **Endpoints**: `POST /v1/agent/query`, `GET /v1/metrics`, `GET /v1/health`.
+- **Seguridad**: API Key via header `X-API-Key` (SHA-256, comparacion timing-safe).
 - **Rate Limiting**: Integracion con `slowapi` (10 req/min por cliente).
+- **Documentacion**: OpenAPI/Swagger auto-generada con tags, respuestas de error y modelos.
 - **Health Check**: Diagnostico profundo (alcanzabilidad del LLM, estado del grafo, estado de la memoria, sesiones activas).
 
 ---
@@ -132,10 +134,10 @@ Abrir `Aerolinea.ipynb` y ejecutar todas las celdas en orden para prototipado y 
 ### 6. Acceder a la API
 
 Una vez que el servidor este corriendo:
-- **Documentacion interactiva**: `http://localhost:8000/docs`
-- **Health check**: `GET http://localhost:8000/health`
-- **Metricas**: `GET http://localhost:8000/metrics` (requiere header `X-API-Key`)
-- **Consultar al agente**: `POST http://localhost:8000/agent/ask` (requiere header `X-API-Key`)
+- **Documentacion interactiva (Swagger)**: `http://localhost:8000/docs`
+- **Health check**: `GET http://localhost:8000/v1/health`
+- **Metricas**: `GET http://localhost:8000/v1/metrics` (requiere header `X-API-Key`)
+- **Consultar al agente**: `POST http://localhost:8000/v1/agent/query` (requiere header `X-API-Key`)
 
 ---
 
